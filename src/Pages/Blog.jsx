@@ -54,8 +54,9 @@ const Blog = () => {
           type="submit"
           className="mt-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow transition"
         >
-          Update Blog
+          Add your
         </button>
+
       </form>
 
       <div>
