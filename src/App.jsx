@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {Provider} from 'react-redux'
 
 import Layout from "./Components/Layout";
 import Login from "./Pages/Login";
@@ -9,9 +10,11 @@ import View from "./Components/View";
 import Service from "./Pages/Service";
 import Contact from "./Pages/Contact";
 import Blog from "./Pages/Blog";
+import Store from "./Redux/Store";
 
 function App() {
   return (
+    <Provider store={Store}>
     <Router>
       <Routes>
 
@@ -35,6 +38,7 @@ function App() {
 
       </Routes>
     </Router>
+    </Provider>
   );
 }
 
