@@ -1,42 +1,87 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
 
 const Blog = () => {
+  const [blogs, setBlogs] = useState(() => {
+    const savedBlogs = localStorage.getItem("blogs");
+    return savedBlogs ? JSON.parse(savedBlogs) : [];
+  });
+
+  const [blogText, setBlogText] = useState("");
+  const [error, setError] = useState(""); // NEW: state for error message
+
+  useEffect(() => {
+    localStorage.setItem("blogs", JSON.stringify(blogs));
+  }, [blogs]);
+
+  const handleAddBlog = (e) => {
+    e.preventDefault();
+
+    if (blogText.trim() === "") {
+      setError("Please write something before submitting!"); // NEW: show error
+      return;
+    }
+
+    const newBlog = {
+      id: Date.now(),
+      text: blogText,
+    };
+
+    setBlogs([...blogs, newBlog]);
+    setBlogText("");
+    setError(""); // NEW: clear error on successful submit
+  };
+
   return (
-      <div className=' bg-orange-200'>
-      <div className='h-40 w-full flex flex-col items-center pt-5'>
-      <h1 className='text-6xl font-bold'>Our Blog</h1> 
-      <p className='text-3xl '>Insights and updates from our team</p>       
+    <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
+      {/* Show error message above textarea */}
+      {error && (
+        <p className="text-red-600 mb-2 font-semibold">{error}</p>
+      )}
+
+      <form onSubmit={handleAddBlog} className="mb-6">
+        <textarea
+          placeholder="Write your blog here..."
+          value={blogText}
+          onChange={(e) => {
+            setBlogText(e.target.value);
+            if (error) setError(""); // Clear error as user types
+          }}
+          className="w-full p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
+          rows={5}
+        />
+
+        <button
+          type="submit"
+          className="mt-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow transition"
+        >
+          Update Blog
+        </button>
+      </form>
+
+      <div>
+        {blogs.length === 0 && (
+          <p className="text-center text-gray-500">No blogs added yet.</p>
+        )}
+
+        {blogs.map((blog) => (
+          <div
+            key={blog.id}
+            className="mb-4 p-4 border border-gray-200 rounded shadow-sm hover:shadow-md transition"
+          >
+            <p className="mb-3 whitespace-pre-line">{blog.text}</p>
+            <button
+              onClick={() => {
+                setBlogs(blogs.filter((b) => b.id !== blog.id));
+              }}
+              className="text-red-600 hover:text-red-800 font-semibold"
+            >
+              Delete
+            </button>
+          </div>
+        ))}
       </div>
-
-      <div className='h-170 w-250 m-auto grid grid-cols-2 gap-10 p-5 justify-items-center '>
-        <div className='h-70 p-5 w-100 bg-orange-100 rounded shadow-xl '>
-          <h1 className='text-4xl font-bold'>Optimizing Your Product Listings</h1>
-          <p className='text-xl py-5'>Learn best practices for creating compelling and effective product listings that drive sales.</p>
-          <p className='text-orange-500 underline underline-offset-5'>Read More</p>
-        </div>
-        <div className='h-70 p-5 w-100 bg-orange-100  rounded shadow-xl'>
-         <h1 className='text-4xl font-bold'>Effective Marketing Strategies</h1>
-          <p className='text-xl py-5 '>Discover successful marketing tactics to boost your brand’s visibility and engagement.</p>
-                    <p className='text-orange-500 underline underline-offset-5'>Read More</p>
-
-         
-        </div>
-        <div className='h-70 p-5 w-100 bg-orange-100  rounded shadow-xl'> 
-           <h1 className='text-4xl font-bold'>Ecommerce Trends 2024</h1>
-          <p className='text-xl py-5 '>Stay ahead of the curve with the latest trends and innovations in the ecommerce space.</p>
-                              <p className='text-orange-500 underline underline-offset-5'>Read More</p>
-
-        </div>
-        <div className='h-70 p-5 w-100 bg-orange-100 rounded shadow-xl'>
-           <h1 className='text-4xl font-bold'>Customer Success Stories</h1>
-          <p className='text-xl py-5 '>Be inspired by stories of how businesses like yours have thrived with Emmorce.</p>
-                            <p className='text-orange-500 underline underline-offset-5'>Read More</p>
-
-        </div>
-      </div>
-        
     </div>
-  )
-}
+  );
+};
 
-export default Blog
+export default Blog;

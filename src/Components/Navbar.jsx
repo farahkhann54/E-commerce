@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import {Link} from 'react-router-dom'
 import Input from './Input'
+import { FiShoppingBag } from "react-icons/fi";
+import AddToCart from './AddToCart';
+
 
 const Navbar = () => {
   return (
@@ -14,8 +17,10 @@ const Navbar = () => {
       <li><Link to='/blog' className=' hover:underline decoration-orange-200 underline-offset-9'>Blogs</Link></li>
       </ul>
       </div>
-      <div>
-<Input/>    
+      <div className='flex  items-center gap-5'>
+<Input/>   
+<FiShoppingBag className='text-3xl'/>
+<AddToCart/>
 </div>
     </div>
   )
