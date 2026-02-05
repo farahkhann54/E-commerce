@@ -1,140 +1,122 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { addItem } from "../Redux/Slice";
+import { addItem, removeItem } from "../Redux/Slice";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleFavourite } from "../Redux/FavSlice";
-import { removeItem } from "../Redux/Slice";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const favIds = useSelector((state) => state.favourite.ids);
 
-    const navigate = useNavigate()
+  const [data, setData] = useState([]);
+  const [search, setSearch] = useState("");
 
-    const images = [
-        "https://i.pinimg.com/736x/bf/39/d4/bf39d41a46c0297570f83350c2066f70.jpg",
-        "https://i.pinimg.com/1200x/35/a4/34/35a434c17a06630d152a1c7623a7b2a4.jpg",
-        "https://i.pinimg.com/1200x/6f/15/b4/6f15b47410cbc7085ee11de8d4ab5d83.jpg",
-        "https://i.pinimg.com/1200x/8f/26/7a/8f267af29b6e3e1a77ece3751731b897.jpg",
-        "https://i.pinimg.com/1200x/ef/b2/74/efb2742da084ae5fc99fd46b9c6bf27b.jpg",
-        "https://i.pinimg.com/1200x/ea/db/fe/eadbfe8417fec95d54fc3e5e0291a23a.jpg",
-        "https://i.pinimg.com/1200x/41/35/ba/4135bae4369915d01b065f30d1977ee1.jpg",
-        "https://i.pinimg.com/1200x/32/8d/0d/328d0d530073643ef8d89136fbae5d24.jpg",
-        "https://i.pinimg.com/736x/07/4d/9d/074d9d28950f249451b8362405431f5f.jpg",
-        "https://i.pinimg.com/1200x/ac/50/96/ac5096d0c6c57b17f7f8ec44b594aca3.jpg",
-        "https://i.pinimg.com/1200x/49/44/b5/4944b5d53cd9a68d4a9fcd28dccd7cf2.jpg",
-        "https://i.pinimg.com/1200x/83/ae/34/83ae3475e94b4b8ac6a16839dcdf1b26.jpg",
-        "https://i.pinimg.com/1200x/6c/6e/6f/6c6e6f66cffd4a3753b0fe876aef1a5a.jpg",
-        "https://i.pinimg.com/736x/8a/3d/71/8a3d7191fbef47e82216aa6ef8df3841.jpg",
-        "https://i.pinimg.com/736x/38/a0/22/38a0224d599859114c2749dd338807d7.jpg",
-        "https://i.pinimg.com/1200x/51/06/fe/5106fe422ff58dd741df1639fbfee7d9.jpg",
-        "https://i.pinimg.com/1200x/9b/76/95/9b7695ac5e5ce409c05f934f7408ae9d.jpg",
-        "https://i.pinimg.com/736x/8b/95/7c/8b957cab0dce19b2421cb8b6594bc1f3.jpg",
-        "https://i.pinimg.com/1200x/ed/07/a0/ed07a0f47ba6761c5207c9ba1133270a.jpg",
-        "https://i.pinimg.com/1200x/4f/ce/98/4fce981befaa9bf357df6d5b7fb4cd6e.jpg",
-    ];
+  const images = [
+    "https://i.pinimg.com/736x/bf/39/d4/bf39d41a46c0297570f83350c2066f70.jpg",
+    "https://i.pinimg.com/1200x/35/a4/34/35a434c17a06630d152a1c7623a7b2a4.jpg",
+    "https://i.pinimg.com/1200x/6f/15/b4/6f15b47410cbc7085ee11de8d4ab5d83.jpg",
+    "https://i.pinimg.com/1200x/8f/26/7a/8f267af29b6e3e1a77ece3751731b897.jpg",
+    "https://i.pinimg.com/1200x/ef/b2/74/efb2742da084ae5fc99fd46b9c6bf27b.jpg",
+  ];
 
-    const dispatch = useDispatch()
-    const patch = useDispatch()
-    const Dpatch = useDispatch();
+  const fetchData = async () => {
+    try {
+      const res = await fetch("https://697d917d97386252a2686b5e.mockapi.io/Product");
+      const result = await res.json();
+      const allProducts = result.flatMap((user) => user.products);
+      setData(allProducts);
+      localStorage.setItem("products", JSON.stringify(allProducts));
+    } catch (error) {
+      console.log("Error:", error);
+    }
+  };
 
-    const favIds = useSelector(state => state.favourite.ids);
+  useEffect(() => {
+    const savedProducts = localStorage.getItem("products");
+    if (savedProducts) {
+      setData(JSON.parse(savedProducts));
+    } else {
+      fetchData();
+    }
+  }, []);
 
-   
+  const filteredData = data.filter((item) =>
+    item.title.toLowerCase().includes(search.toLowerCase())
+  );
 
-    const [data, setData] = useState([]);
+  return (
+    <div className="pt-24 px-6 bg-orange-100 min-h-screen">
+      {/* Search bar */}
+      <div className="max-w-4xl mx-auto mb-10 relative">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full px-5 py-3 pl-12 border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm bg-white"
+        />
+        <span className="absolute left-4 top-3.5 text-gray-400">🔍</span>
+      </div>
 
-    const fetchData = async () => {
-        try {
-            const res = await fetch(
-                "https://697d917d97386252a2686b5e.mockapi.io/Product"
-            );
-            const result = await res.json();
+      {/* Product grid */}
+      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        {filteredData.length > 0 ? (
+          filteredData.map((item, index) => (
+            <li
+              key={index}
+              className="bg-white/80 backdrop-blur-md rounded-2xl shadow-md hover:shadow-xl transition transform hover:-translate-y-2 p-6 flex flex-col items-center border border-gray-200 hover:border-indigo-300"
+            >
+              {/* Favourite button */}
+              <button
+                onClick={() => dispatch(toggleFavourite(item.id))}
+                className="self-end text-xl mb-2 hover:scale-110 transition"
+              >
+                {favIds.includes(item.id) ? "❤️" : "🤍"}
+              </button>
 
-            const allProducts = result.flatMap(user => user.products);
+              {/* Product image */}
+              <img
+                src={images[index % images.length]}
+                alt={item.title}
+                className="h-44 w-44 object-cover rounded-xl mb-4 shadow-md"
+              />
 
-            setData(allProducts);
+              {/* Product info */}
+              <h3 className="font-semibold text-lg text-gray-800 mb-1 text-center">
+                {item.title}
+              </h3>
+              <p className="text-gray-600 text-sm mb-4">Price: ${item.price}</p>
 
-            // 🔹 NEW: API se aaya hua data localStorage me save
-            localStorage.setItem("products", JSON.stringify(allProducts));
-
-        } catch (error) {
-            console.log("Error:", error);
-        }
-    };
-
-    useEffect(() => {
-
-        // 🔹 NEW: page load par pehle localStorage check
-        const savedProducts = localStorage.getItem("products");
-
-        if (savedProducts) {
-            // 🔹 agar data mila to localStorage se state me set
-            setData(JSON.parse(savedProducts));
-        } else {
-            // 🔹 warna API call
-            fetchData();
-        }
-
-    }, []);
-
-    return (
-        <div>
-            <div className="h-auto w-full bg-orange-200 p-5 ">
-                <ul className="space-y-3 grid grid-cols-3 w-300 m-auto gap-9">
-
-                    {data.map((item, index) => (
-                        <li
-                            key={index}
-                            className="bg-white p-4 rounded-xl text-base/8 shadow-xl w-90 h-120 flex flex-col items-center justify-center"
-                        >
-                            <div className="h-10 w-full flex justify-start">
-                                <div className="h-8 w-10 items-center flex justify-center">
-                                   <button onClick={() => Dpatch(toggleFavourite(item.id))}>
-  {favIds.includes(item.id) ? "❤️" : "🤍"}
-</button>
-                                </div>
-                            </div>
-
-                            <img
-                                src={images[index % images.length]}
-                                alt={item.title}
-                                className="h-50 w-50 rounded"
-                            />
-
-                            <h3 className="font-bold text-lg">{item.title}</h3>
-                            <p>Price: ${item.price}</p>
-                            <p>{item.price}</p>
-
-                            <div className="flex gap-5">
-                                <button
-                                    onClick={() => navigate('/view')}
-                                    className="h-8 w-30 text-sm font-bold rounded shadow-xl bg-orange-200"
-                                >
-                                    View Details
-                                </button>
-                            </div>
-
-                            <div className="flex gap-10 pt-5 h-15">
-                                <button
-                                    className="rounded h-8 w-25 shadow-2xl bg-gray-600 font-bold text-white text-sm p-2"
-                                    onClick={() => dispatch(addItem())}
-                                >
-                                    Add to cart
-                                </button>
-
-                                <button
-                                    className="rounded h-8 w-40 shadow-2xl bg-red-800 font-bold text-white text-sm p-2"
-                                    onClick={() => patch(removeItem())}
-                                >
-                                    Remove from cart
-                                </button>
-                            </div>
-
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </div>
-    );
+              {/* Buttons */}
+              <div className="flex gap-3 mt-auto">
+                <button
+                  onClick={() => navigate("/view")}
+                  className="px-4 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow transition"
+                >
+                  View
+                </button>
+                <button
+                  onClick={() => dispatch(addItem())}
+                  className="px-4 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow transition"
+                >
+                  Add
+                </button>
+                <button
+                  onClick={() => dispatch(removeItem())}
+                  className="px-4 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow transition"
+                >
+                  Remove
+                </button>
+              </div>
+            </li>
+          ))
+        ) : (
+          <p className="text-center text-gray-500 col-span-3">No products found</p>
+        )}
+      </ul>
+    </div>
+  );
 };
 
 export default Dashboard;

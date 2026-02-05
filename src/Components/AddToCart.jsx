@@ -7,9 +7,9 @@ const AddToCart = () => {
     
   return (
     <div>
-        <div className='h-6 w-6 bg-red-500 text-xs font-bold rounded-full absolute top-6 right-4 flex items-center justify-center'>{selector}</div>
-
-        
+  <span className="absolute -top-2 right-0 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+            {selector}
+          </span>        
     </div>
   )
 }
