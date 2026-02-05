@@ -12,32 +12,41 @@ import Contact from "./Pages/Contact";
 import Blog from "./Pages/Blog";
 import Store from "./Redux/Store";
 
+// ✅ Import ProtectedRoute (new file you created)
+import ProtectedRoute from "./Components/ProtectedRoute"
+
 function App() {
   return (
     <Provider store={Store}>
-    <Router>
-      <Routes>
+      <Router>
+        <Routes>
 
-        {/* Routes WITH Navbar + Footer */}
-        <Route element={<Layout />}>
-          
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/service" element={<Service />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          {/* Routes WITH Navbar + Footer */}
+          <Route element={<Layout />}>
+            
+            {/* ✅ Protect Dashboard route so only logged-in users can access */}
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
 
-          <Route path="/view" element={<View />} />
-          
-        </Route>
+            {/* Other routes remain the same */}
+            <Route path="/service" element={<Service />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/view" element={<View />} />
+          </Route>
 
-        {/* Routes WITHOUT Navbar + Footer */}
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+          {/* Routes WITHOUT Navbar + Footer */}
+          <Route path="/" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
 
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
     </Provider>
   );
 }
