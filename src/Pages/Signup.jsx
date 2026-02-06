@@ -8,33 +8,37 @@ export default function Signup() {
   const [er, setEr] = useState("")
   const navigate = useNavigate()
 
-  const handleSubmit = async (e) => {
+  
+  const handleSubmit = (e) => {
     e.preventDefault()
+    setEr("")
+
     if (!username || !email || !password) {
       setEr("All fields are required")
       return
     }
-    try {
-      const res = await fetch("https://6940f998993d68afba6e33e1.mockapi.io/api/v1/SignUp", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, username })
-      })
 
-      if (res.ok) {
-        localStorage.setItem("authToken", "true")
-        navigate('/dashboard')
-      } else {
-        setEr("Signup failed")
-      }
-    } catch (err) {
-      setEr("Something went wrong")
-      console.log(err)
+    const usersData = localStorage.getItem("users")
+    const users = usersData ? JSON.parse(usersData) : []
+    const userExists = users.some((u) => u.email === email || u.username === username)
+
+    if (userExists) {
+      setEr("Email or username already registered")
+      return
     }
+
+    const newUser = { username, email, password }
+    users.push(newUser)
+
+    localStorage.setItem("users", JSON.stringify(users))
+
+    localStorage.setItem("authToken", "true")
+    localStorage.setItem("currentUser", JSON.stringify({ username, email }))
+    navigate('/dashboard')
   }
 
   function handleSignIn() {
-    navigate('/login')
+    navigate('/')
   }
 
   return (
